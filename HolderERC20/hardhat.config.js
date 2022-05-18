@@ -1,10 +1,11 @@
+require('@nomiclabs/hardhat-truffle5');
 require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-ethers');
 require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-web3');
-require('solidity-coverage');
-require('hardhat-gas-reporter');
 require('hardhat-contract-sizer');
+require('hardhat-gas-reporter');
+require('solidity-coverage');
 require('hardhat-deploy');
 
 require('dotenv').config();
@@ -16,7 +17,6 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const TENDERLY_PROJECT = process.env.TENDERLY_PROJECT;
 const TENDERLY_USERNAME = process.env.TENDERLY_USERNAME;
 const INFURA_POLYGON_RPC_URL = process.env.INFURA_POLYGON_RPC_URL;
-
 
 module.exports = {
   networks: {
@@ -38,6 +38,9 @@ module.exports = {
       accounts: [PRIVATE_KEY],
       tags: ['mainnet'],
     },
+  },
+  upgradeable: {
+    uups: ['HolderERC20'],
   },
   namedAccounts: {
     deployer: 0,
