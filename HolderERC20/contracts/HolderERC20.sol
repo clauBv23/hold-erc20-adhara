@@ -4,13 +4,11 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./Structs.sol";
 
 contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
     using Counters for Counters.Counter;
-    using SafeERC20 for IERC20;
 
     /// @dev The incremental counter for the holds ids
     Counters.Counter private _holdIdCounter;
@@ -31,7 +29,7 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
      * @notice Emmited when a new hold is executed
      * @param holdId The created hold Id
      */
-    event HoldExected(uint256 indexed holdId);
+    event HoldExecuted(uint256 indexed holdId);
 
     /**
      * @notice Emmited when a new hold is removed by the contract owner
@@ -71,6 +69,11 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
      * @param amount_ Amount of tokens to hold
      */
     function holdFrom(address holder_, uint256 amount_) public {
+        uint256 allowance_ = allowance(holder_, msg.sender);
+
+        // check if the holder allow the caller to hold
+        require(allowance_ >= amount_, "Not allowed");
+
         _hold(msg.sender, holder_, amount_);
     }
 
@@ -85,7 +88,11 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
         holdId = _holdIdCounter.current();
 
         // send the funds to the current contract
-        IERC20(address(this)).safeTransferFrom(holder_, address(this), amount_);
+        if (operator_ == holder_) {
+            transfer(address(this), amount_);
+        } else {
+            transferFrom(holder_, address(this), amount_);
+        }
 
         // store the hold
         _holds[holdId] = Hold({operator: operator_, holder: holder_, amount: amount_});
@@ -103,6 +110,8 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
         require(currentHold.operator == msg.sender, "The caller must be the hold creator");
 
         _revertHold(holdId_, currentHold.holder, currentHold.amount);
+
+        emit HoldExecuted(holdId_);
     }
 
     /**
@@ -116,6 +125,8 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
         require(currentHold.holder != address(0), "Undefined hold");
 
         _revertHold(holdId_, currentHold.holder, currentHold.amount);
+
+        emit HoldRemoved(holdId_);
     }
 
     /// @dev Helper function to send back to the holder the holded tokens
@@ -128,16 +139,25 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
         delete _holds[holdId_];
 
         // transfer the holded tokens to the holder
-        IERC20(address(this)).safeTransferFrom(address(this), holder_, amount_);
+        ERC20Upgradeable(address(this)).transfer(holder_, amount_);
     }
 
     /**
      * @dev Getter for the holds
      * @param holdId_ The id of the Hold
      */
-    function getHold(uint256 holdId_) public view returns (uint256 holdAmount, address holder) {
+    function getHold(uint256 holdId_)
+        public
+        view
+        returns (
+            uint256 holdAmount,
+            address holder,
+            address operator
+        )
+    {
         holdAmount = _holds[holdId_].amount;
         holder = _holds[holdId_].holder;
+        operator = _holds[holdId_].operator;
 
         require(holder != address(0), "Undefined hold");
     }
