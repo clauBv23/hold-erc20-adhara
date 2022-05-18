@@ -10,7 +10,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
       execute: {
         init: {
           methodName: 'initialize',
-          args: [],
+          args: ['holderToken', 'HTK'],
         },
       },
     },
