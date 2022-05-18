@@ -1,6 +1,6 @@
 const HolderERC20 = artifacts.require('HolderERC20');
 
-const { BN, expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
+const { constants, expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 
 contract('HolderERC20', function () {
   const mint = async (to, amount) => {
@@ -204,6 +204,27 @@ contract('HolderERC20', function () {
 
         assert.strictEqual(aliceBalance.toString(), '10');
         assert.strictEqual(contractBalance.toString(), '0');
+      });
+    });
+
+    describe('upgrade', () => {
+      it("can't upgrade with wrong accounts", async () => {
+        const { bob } = await getNamedAccounts();
+
+        await expectRevert(
+          this.holderErc20.upgradeTo(constants.ZERO_ADDRESS, { from: bob }),
+          'Ownable: caller is not the owner'
+        );
+      });
+
+      it('can upgrade with right account', async () => {
+        const { deployer } = await getNamedAccounts();
+
+        const newImplementation = await HolderERC20.new();
+
+        const tx = await this.holderErc20.upgradeTo(newImplementation.address, { from: deployer });
+
+        expectEvent(tx, 'Upgraded', { implementation: newImplementation.address });
       });
     });
 
