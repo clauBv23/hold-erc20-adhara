@@ -1,5 +1,5 @@
 const transactions = require('./src/transactions');
-const utils = require('./utils');
+const utils = require('./src/utils');
 const express = require('express');
 const app = express();
 const port = 3000;
