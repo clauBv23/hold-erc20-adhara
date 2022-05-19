@@ -30,4 +30,5 @@ The Project was developed using HardHat and OpenZeppelin libraries. The tests ar
 ## Improvements
 
 A different Hold function could be added to allow the token owners to save tokens. It will be like a vault where each owner can hold his token to be used in the future and receive some profit depending on the held amount.
+
 Create a Minter Roll and give him permission to Mint, allowing him to mint tokens not only to the contract owner.
