@@ -16,6 +16,7 @@ var counter = 0;
 
 var currentHolds = [];
 
+// GET: user/holds?id=2
 app.get('/user/holds', async (req, res) => {
   // filter the holds of the user
   let holds = currentHolds.filter((hold) => hold.holderId == req.query.id);
@@ -23,14 +24,17 @@ app.get('/user/holds', async (req, res) => {
   res.send({ holds: holds });
 });
 
+// GET: holds
 app.get('/holds', (req, res) => {
   res.json(currentHolds);
 });
 
+// GET: users
 app.get('/users', (req, res) => {
   res.json(registeredUsers);
 });
 
+// GET: balance?id=2
 app.get('/balance', async (req, res) => {
   // get the user address
   let address = registeredUsers.find((user) => user.id == req.query.id)?.address;
@@ -43,6 +47,7 @@ app.get('/balance', async (req, res) => {
   res.send({ balance: balance });
 });
 
+// POST: reg
 app.post('/reg', upload.array(), async (req, res) => {
   // check if the user has been registered
   let userId = registeredUsers.find((user) => user.address == req.body.addr)?.id;
@@ -63,6 +68,7 @@ app.post('/reg', upload.array(), async (req, res) => {
   }
 });
 
+// POST: bet
 app.post('/bet', upload.array(), async (req, res) => {
   // get the user address
   let address = registeredUsers.find((user) => user.id == req.body.userId)?.address;
