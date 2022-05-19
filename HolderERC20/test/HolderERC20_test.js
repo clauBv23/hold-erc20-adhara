@@ -62,7 +62,7 @@ contract('HolderERC20', function () {
         assert.strictEqual(aliceHold[2], alice);
       });
 
-      it('check the tokens were holded', async () => {
+      it('check the tokens were held', async () => {
         const { alice } = await getNamedAccounts();
 
         let aliceBalance = await this.holderErc20.balanceOf(alice);
