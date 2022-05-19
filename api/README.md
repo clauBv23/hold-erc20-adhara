@@ -3,7 +3,7 @@
 This is an API made on `NodeJs` using `Express` and `Web3`. The goal is to simulate a Betting Game where several users can make bets and one of them will be randomly selected as a winner. To simulate this game the [HolderERC20](https://github.com/Adhara-Tech/claubv23-backend-code-assessment/tree/feature/api/HolderERC20) Smart Contract will be used. The API allows to make bets, check the registered users, list the active bets, and check a user balance and a user's active bets.
 
 ## Quick Start
-To use this API have to configure the blockchain URL and the Smart Contract Address, and also have to define the contract owner address and private key, this will be the transactions signer.
+To use this API have to configure the `.env` file as is described on the `.env.example`. You will need to provide the blockchain URL and the Smart Contract Address, and also have to define the contract owner address and the private key, this will be the transactions signer.
 
 After that, 
 - run ` yarn install` to download the `node_modules` folder.
