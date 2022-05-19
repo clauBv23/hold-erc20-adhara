@@ -169,9 +169,10 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
             address operator
         )
     {
-        holdAmount = _holds[holdId_].amount;
-        holder = _holds[holdId_].holder;
-        operator = _holds[holdId_].operator;
+        Hold storage hold = _holds[holdId_];
+        holdAmount = hold.amount;
+        holder = hold.holder;
+        operator = hold.operator;
 
         require(holder != address(0), "Undefined hold");
     }
