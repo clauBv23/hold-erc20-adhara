@@ -17,7 +17,7 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
     mapping(uint256 => Hold) private _holds;
 
     /**
-     * @notice Emmited when a new hold is created
+     * @dev Emmited when a new hold is created
      * @param holdId The created hold Id
      * @param holdAmount The mount holded
      * @param holder The holder's address
@@ -26,13 +26,13 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
     event HoldCreated(uint256 indexed holdId, uint256 holdAmount, address holder, address operator);
 
     /**
-     * @notice Emmited when a new hold is executed
+     * @dev Emmited when a new hold is executed
      * @param holdId The created hold Id
      */
     event HoldExecuted(uint256 indexed holdId);
 
     /**
-     * @notice Emmited when a new hold is removed by the contract owner
+     * @dev Emmited when a new hold is removed by the contract owner
      * @param holdId The created hold Id
      */
     event HoldRemoved(uint256 indexed holdId);
@@ -51,21 +51,21 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
      * @param to_ Address to owns the minted tokens
      * @param amount_ Amount of tokens to be minted
      */
-    function mint(address to_, uint256 amount_) public onlyOwner {
+    function mint(address to_, uint256 amount_) external onlyOwner {
         _mint(to_, amount_);
     }
 
     /**
-     * @dev Hold the specified amount
+     * @notice Hold the specified amount
      * @param amount_ Amount of tokens to hold
      * @param beneficiary_ Account to transfer the holded tokens
      */
-    function hold(uint256 amount_, address beneficiary_) public {
+    function hold(uint256 amount_, address beneficiary_) external {
         _hold(msg.sender, msg.sender, amount_, beneficiary_);
     }
 
     /**
-     * @dev Hold the specified amount from another account
+     * @notice Hold the specified amount from another account
      * @param holder_ Owner of tokens to hold
      * @param amount_ Amount of tokens to hold
      * @param beneficiary_ Account to transfer the holded tokens to
@@ -74,7 +74,7 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
         address holder_,
         uint256 amount_,
         address beneficiary_
-    ) public {
+    ) external {
         uint256 allowance_ = allowance(holder_, msg.sender);
 
         // check if the holder allow the caller to hold
@@ -113,10 +113,10 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
     }
 
     /**
-     * @dev Returns the holded tokens to the holder
+     * @notice Returns the holded tokens to the holder
      * @param holdId_ Id of the Hold
      */
-    function executeHold(uint256 holdId_) public {
+    function executeHold(uint256 holdId_) external {
         Hold memory currentHold = _holds[holdId_];
 
         require(currentHold.operator == msg.sender, "The caller must be the hold creator");
@@ -128,11 +128,11 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
     }
 
     /**
-     * @notice Only owner allowed
-     * @dev Returns the holded tokens to the holder
+     * @notice Returns the holded tokens to the holder
+     * @dev Only owner allowed
      * @param holdId_ Id of the Hold
      */
-    function removeHold(uint256 holdId_) public onlyOwner {
+    function removeHold(uint256 holdId_) external onlyOwner {
         Hold memory currentHold = _holds[holdId_];
 
         require(currentHold.holder != address(0), "Undefined hold");

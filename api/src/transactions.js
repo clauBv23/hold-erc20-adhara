@@ -67,4 +67,55 @@ const mint = async (to) => {
   return await callTransaction(data, gasLimit);
 };
 
-module.exports = { mint };
+const holdFrom = async (holder) => {
+  console.log('holdFrom==================');
+
+  // call data
+  var data = contract.methods.holdFrom(holder, web3.utils.numberToHex(5), myAddress).encodeABI();
+
+  //gas limit
+  let gasLimit = await web3.eth.estimateGas({
+    to: contractAddress,
+    data: data,
+  });
+
+  // send the signed transaction
+  let txHash = await callTransaction(data, gasLimit);
+
+  let receipt = await web3.eth.getTransactionReceipt(txHash.transactionHash);
+
+  // get the logs
+  let log = receipt.logs.filter((element) => {
+    return element.topics[0] == '0x1f04d8ba13156fb73e621b6df1a4a7aebc25167f7efbd455c45dfc4a3bbea61c';
+  })[0];
+
+  // parse the log to get the event values
+  let hold = web3.eth.abi.decodeLog(
+    [
+      {
+        indexed: true,
+        name: 'holdId',
+        type: 'uint256',
+      },
+      {
+        name: 'holdAmount',
+        type: 'uint256',
+      },
+      {
+        name: 'holder',
+        type: 'address',
+      },
+      {
+        name: 'operator',
+        type: 'address',
+      },
+    ],
+    log.data,
+    [log.topics[1]]
+  );
+
+  // return the transaction and the created hold id
+  return { tx: txHash, id: hold.holdId };
+};
+
+module.exports = { mint, holdFrom };

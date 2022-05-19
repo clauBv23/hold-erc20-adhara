@@ -50,6 +50,19 @@ app.post('/reg', upload.array(), async (req, res) => {
   }
 });
 
+app.post('/bet', upload.array(), async (req, res) => {
+  // get the user address
+  let address = registeredUsers.find((user) => user.id == req.body.userId)?.address;
+  if (address) {
+    let response = await transactions.holdFrom(address);
+
+    // store the hold
+    currentHolds.push({ holderId: req.body.userId, holdId: response.id });
+
+    res.send({ transaction: response.tx, holdId: response.id });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
