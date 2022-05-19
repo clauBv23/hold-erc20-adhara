@@ -17,6 +17,7 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const TENDERLY_PROJECT = process.env.TENDERLY_PROJECT;
 const TENDERLY_USERNAME = process.env.TENDERLY_USERNAME;
 const INFURA_POLYGON_RPC_URL = process.env.INFURA_POLYGON_RPC_URL;
+const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL;
 
 module.exports = {
   networks: {
@@ -28,15 +29,10 @@ module.exports = {
       url: 'http://127.0.0.1:8545',
       tags: ['local'],
     },
-    mumbai: {
-      url: MUMBAI_RPC_URL,
+    rinkeby: {
+      url: RINKEBY_RPC_URL,
       accounts: [PRIVATE_KEY],
       tags: ['testnet'],
-    },
-    polygon: {
-      url: INFURA_POLYGON_RPC_URL,
-      accounts: [PRIVATE_KEY],
-      tags: ['mainnet'],
     },
   },
   upgradeable: {
