@@ -1,0 +1,2 @@
+# Betting Game API
+
