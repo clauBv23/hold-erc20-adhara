@@ -40,10 +40,10 @@ contract('HolderERC20', function () {
 
     describe('check hold method', async () => {
       beforeEach(async () => {
-        const { alice } = await getNamedAccounts();
+        const { alice, bob } = await getNamedAccounts();
 
         // hold 3 tokens
-        this.holdTX = await this.holderErc20.hold(3, { from: alice });
+        this.holdTX = await this.holderErc20.hold(3, bob, { from: alice });
       });
 
       it('check the HoldCreated event where emited', async () => {
@@ -74,10 +74,10 @@ contract('HolderERC20', function () {
 
       describe('check execute hold method', async () => {
         beforeEach(async () => {
-          const { alice } = await getNamedAccounts();
+          const { alice, bob } = await getNamedAccounts();
 
           // hold 5 tokens
-          this.holdTX = await this.holderErc20.hold(3, { from: alice });
+          this.holdTX = await this.holderErc20.hold(3, bob, { from: alice });
 
           // execute the second hold created
           this.holdTX = await this.holderErc20.executeHold(2, { from: alice });
@@ -91,13 +91,16 @@ contract('HolderERC20', function () {
           await expectRevert(this.holderErc20.getHold(2), 'Undefined hold');
         });
 
-        it('check the tokens were reverted', async () => {
-          const { alice } = await getNamedAccounts();
+        it('check the tokens were transferred', async () => {
+          const { alice, bob } = await getNamedAccounts();
 
           let aliceBalance = await this.holderErc20.balanceOf(alice);
+          let bobBalance = await this.holderErc20.balanceOf(bob);
           let contractBalance = await this.holderErc20.balanceOf(this.holderErc20.address);
 
-          assert.strictEqual(aliceBalance.toString(), '7');
+          assert.strictEqual(aliceBalance.toString(), '4');
+          assert.strictEqual(bobBalance.toString(), '13');
+
           assert.strictEqual(contractBalance.toString(), '3');
         });
       });
@@ -105,11 +108,11 @@ contract('HolderERC20', function () {
 
     describe('check hold from method', async () => {
       beforeEach(async () => {
-        const { alice, bob } = await getNamedAccounts();
+        const { alice, bob, user } = await getNamedAccounts();
 
         // hold 5 tokens from alice with bob
         this.holderErc20.approve(bob, 5, { from: alice });
-        this.holdTX = await this.holderErc20.holdFrom(alice, 5, { from: bob });
+        this.holdTX = await this.holderErc20.holdFrom(alice, 5, user, { from: bob });
       });
 
       it('check the HoldCreated event where emited', async () => {
@@ -143,14 +146,13 @@ contract('HolderERC20', function () {
 
       describe('check execute hold method when the operator is not the holder', async () => {
         beforeEach(async () => {
-          const { alice, bob } = await getNamedAccounts();
+          const { alice, bob, user } = await getNamedAccounts();
 
           // hold 1 token from alice with bob
           this.holderErc20.approve(bob, 1, { from: alice });
-          this.holdTX = await this.holderErc20.holdFrom(alice, 1, { from: bob });
+          this.holdTX = await this.holderErc20.holdFrom(alice, 1, user, { from: bob });
 
           // chech that alice can't execute the hold
-
           await expectRevert(this.holderErc20.executeHold(2, { from: alice }), 'The caller must be the hold creator');
 
           // execute the second hold created
@@ -165,13 +167,16 @@ contract('HolderERC20', function () {
           await expectRevert(this.holderErc20.getHold(2), 'Undefined hold');
         });
 
-        it('check the tokens were reverted', async () => {
-          const { alice } = await getNamedAccounts();
+        it('check the tokens were tranferred', async () => {
+          const { alice, user } = await getNamedAccounts();
 
           let aliceBalance = await this.holderErc20.balanceOf(alice);
+          let userBalance = await this.holderErc20.balanceOf(user);
+
           let contractBalance = await this.holderErc20.balanceOf(this.holderErc20.address);
 
-          assert.strictEqual(aliceBalance.toString(), '5');
+          assert.strictEqual(aliceBalance.toString(), '4');
+          assert.strictEqual(userBalance.toString(), '1');
           assert.strictEqual(contractBalance.toString(), '5');
         });
       });
@@ -179,10 +184,10 @@ contract('HolderERC20', function () {
 
     describe('check remove hold method', async () => {
       beforeEach(async () => {
-        const { deployer, alice } = await getNamedAccounts();
+        const { deployer, alice, bob } = await getNamedAccounts();
 
         // hold 5 tokens with alice
-        await this.holderErc20.hold(2, { from: alice });
+        await this.holderErc20.hold(2, bob, { from: alice });
 
         // remove the hold
         this.removeTX = await this.holderErc20.removeHold(1, { from: deployer });
@@ -197,12 +202,14 @@ contract('HolderERC20', function () {
       });
 
       it('check the tokens where reverted', async () => {
-        const { alice } = await getNamedAccounts();
+        const { alice, bob } = await getNamedAccounts();
 
         let aliceBalance = await this.holderErc20.balanceOf(alice);
+        let bobBalance = await this.holderErc20.balanceOf(bob);
         let contractBalance = await this.holderErc20.balanceOf(this.holderErc20.address);
 
         assert.strictEqual(aliceBalance.toString(), '10');
+        assert.strictEqual(bobBalance.toString(), '10');
         assert.strictEqual(contractBalance.toString(), '0');
       });
     });
@@ -230,10 +237,10 @@ contract('HolderERC20', function () {
 
     // -----------------requires------------------
     it('check hold from when is not allowed', async () => {
-      const { alice, bob } = await getNamedAccounts();
+      const { alice, bob, user } = await getNamedAccounts();
 
       // hold 5 tokens from alice with bob with no allowance
-      await expectRevert(this.holderErc20.holdFrom(alice, 5, { from: bob }), 'Not allowed');
+      await expectRevert(this.holderErc20.holdFrom(alice, 5, user, { from: bob }), 'Not allowed');
     });
 
     it('check the removeHold can only be called by the owner', async () => {
