@@ -17,10 +17,10 @@ var counter = 0;
 var currentHolds = [];
 
 app.get('/user/holds', async (req, res) => {
-  let holdId = currentHolds.find((hold) => hold.holderId == req.query.id)?.holdId;
-  console.log(holdId);
+  // filter the holds of the user
+  let holds = currentHolds.filter((hold) => hold.holderId == req.query.id);
 
-  res.send({ holdId: holdId });
+  res.send({ holds: holds });
 });
 
 app.get('/holds', (req, res) => {
@@ -29,6 +29,18 @@ app.get('/holds', (req, res) => {
 
 app.get('/users', (req, res) => {
   res.json(registeredUsers);
+});
+
+app.get('/balance', async (req, res) => {
+  // get the user address
+  let address = registeredUsers.find((user) => user.id == req.query.id)?.address;
+  let balance = 0;
+
+  if (address) {
+    balance = await transactions.getBalance(address);
+  }
+
+  res.send({ balance: balance });
 });
 
 app.post('/reg', upload.array(), async (req, res) => {
@@ -63,11 +75,11 @@ app.post('/bet', upload.array(), async (req, res) => {
     // check if is the 4th hold
     if (currentHolds.length == 4) {
       // execute the bets
-      let winner = utils.makeTheBets(currentHolds, registeredUsers);
+      let winner = await utils.makeTheBets(currentHolds, registeredUsers);
 
       // empty the current currentHolds
       currentHolds = [];
-      res.send({ wiiner: winner });
+      res.send({ winner: winner });
     } else {
       res.send({ transaction: response.tx, holdId: response.id });
     }
