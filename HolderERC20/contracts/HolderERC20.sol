@@ -137,7 +137,7 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
 
         require(currentHold.holder != address(0), "Undefined hold");
 
-        // revert the hold send the held tokens back to the holder
+        // revert the hold and send the held tokens back to the holder
         _sendHeldTokens(holdId_, currentHold.holder, currentHold.amount);
 
         emit HoldRemoved(holdId_);
@@ -169,10 +169,10 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
             address operator
         )
     {
-        Hold storage hold = _holds[holdId_];
-        holdAmount = hold.amount;
-        holder = hold.holder;
-        operator = hold.operator;
+        Hold storage currentHold = _holds[holdId_];
+        holdAmount = currentHold.amount;
+        holder = currentHold.holder;
+        operator = currentHold.operator;
 
         require(holder != address(0), "Undefined hold");
     }

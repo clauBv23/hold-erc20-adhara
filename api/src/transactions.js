@@ -1,14 +1,19 @@
-const contractABI = require('./contract-abi.json');
-const contractAddress = '0xE8e23A1A2c1B462013d883246248B2daFdebF322';
+require('dotenv').config();
+const MY_ADDRESS = process.env.MY_ADDRESS;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const PROVIDER_URL = process.env.PROVIDER_URL;
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
+const contractABI = require('./contract-abi.json');
+const contractAddress = CONTRACT_ADDRESS;
+
+console.log('contract===================', contractAddress);
 const Web3 = require('web3');
 const ethTx = require('ethereumjs-tx');
 const readline = require('readline');
 
-const args = process.argv.slice(2);
-
-// Ganache url
-var provider = args[0] || 'http://localhost:7545';
+// provider url
+var provider = PROVIDER_URL;
 console.log('******************************************');
 console.log('Using provider : ' + provider);
 console.log('******************************************');
@@ -17,8 +22,8 @@ var web3 = new Web3(new Web3.providers.HttpProvider(provider));
 web3.transactionConfirmationBlocks = 1;
 
 //my address and private key
-const myAddress = '0x8Dd9d0e36183052402bE9796149312bE23d4DF06';
-const privKey = Buffer.from('15878c3bb1b17cc2c3fcf2a8d0e78d470ecc7251d07ae2ca0519b78db017e21d', 'hex');
+const myAddress = MY_ADDRESS;
+const privKey = Buffer.from(PRIVATE_KEY, 'hex');
 
 // contract instance
 var contract = new web3.eth.Contract(contractABI, contractAddress);
@@ -65,7 +70,7 @@ const mint = async (to) => {
   // call data
   var data = contract.methods.mint(to, web3.utils.numberToHex(100)).encodeABI();
 
-  return await callTransaction(data, gasLimit);
+  return await callTransaction(data);
 };
 
 const holdFrom = async (holder) => {
@@ -75,11 +80,11 @@ const holdFrom = async (holder) => {
   var data = contract.methods.holdFrom(holder, web3.utils.numberToHex(5), myAddress).encodeABI();
 
   // send the signed transaction
-  let txHash = await callTransaction(data, gasLimit);
+  let txHash = await callTransaction(data);
 
   let receipt = await web3.eth.getTransactionReceipt(txHash.transactionHash);
 
-  // get the logs
+  // get the logs the Event HoldCreated hash = 0x1f04d8ba13156fb73e621b6df1a4a7aebc25167f7efbd455c45dfc4a3bbea61c
   let log = receipt.logs.filter((element) => {
     return element.topics[0] == '0x1f04d8ba13156fb73e621b6df1a4a7aebc25167f7efbd455c45dfc4a3bbea61c';
   })[0];
@@ -120,7 +125,7 @@ const executeHold = async (holdId) => {
   var data = contract.methods.executeHold(holdId).encodeABI();
 
   // call to send the signed transaction
-  return await callTransaction(data, gasLimit);
+  return await callTransaction(data);
 };
 
 const transfer = async (to) => {
@@ -129,7 +134,7 @@ const transfer = async (to) => {
   // call data
   var data = contract.methods.transfer(to, web3.utils.numberToHex(20)).encodeABI();
 
-  return await callTransaction(data, gasLimit);
+  return await callTransaction(data);
 };
 
 const getBalance = async (address) => {
