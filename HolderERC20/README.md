@@ -24,9 +24,9 @@ The Project was developed using HardHat and OpenZeppelin libraries. The tests ar
 ### Utils 
 - To check the tests run `hardhat test` on the console
 - To check the contract code coverage run on the console ` hardhat coverage`
-- The local network (a local ganache network) and the rinkeby network are configured on the project. To add a new one go to the `hardhat.config.js` file and the desire network configuration.
+- The local network (a local ganache network) and the rinkeby network are configured on the project. To add a new one go to the `hardhat.config.js` file and the desired network configuration.
 
 
 ## Improvements
 
-A different Hold function could be added to allow the token owners to save tokens. It will be like a vault where each owner can hold his token to be used in the future and receive some profit depending on the held amount.
+A different Hold function could be added to allow the token owners to save tokens. It will be like a vault where each owner can hold his token to be used in the future and receive some profit depending on the held amount. Create a Minter Roll and give him permission to Mint, allowing him to mint tokens not only to the contract owner.
