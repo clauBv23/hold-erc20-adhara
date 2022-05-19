@@ -12,8 +12,21 @@ The contract is a regular ERC20 using the [EIP20](https://eips.ethereum.org/EIPS
 ## Specifications
 
 The HolderErc20 contract is Upgradeable using UUPS Proxy and [Ownble](https://docs.openzeppelin.com/contracts/2.x/api/ownership#Ownable).
+The Project was developed using HardHat and OpenZeppelin libraries. The tests are on js, using mocha and chai with waffle, in the tests were also used the OpenZeppelin test helpers to control the events and the reverted transactions. The solidity coverage plugging was used to check that 100% coverage where raised.
+
+### Quick Start
+ To use the contract fallow this steps:
+ 
+ - Run ``` yarn install``` to download the `node_modules` folder.
+ - Create a `.env` file with the specifications on the `evn.example` file
+ - Run ``` hardhat deploy --network <the defined network> ``` to deloy the contract on the desired network
+
+### Utils 
+- To check the tests run `hardhat test` on the console
+- To check the contract code coverage run on the console ` hardhat coverage`
+- The local network (a local ganache network) and the rinkeby network are configured on the project. To add a new one go to the `hardhat.config.js` file and the desire network configuration.
 
 
 ## Improvements
 
-A different Hold function could be added to allow the token owners to save tokens. It will be like a vault where each owner can hold his token to be used in the future and receive some profit depending on the held amount
+A different Hold function could be added to allow the token owners to save tokens. It will be like a vault where each owner can hold his token to be used in the future and receive some profit depending on the held amount.
