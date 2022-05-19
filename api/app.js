@@ -1,4 +1,5 @@
 const transactions = require('./src/transactions');
+const utils = require('./utils');
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -59,7 +60,17 @@ app.post('/bet', upload.array(), async (req, res) => {
     // store the hold
     currentHolds.push({ holderId: req.body.userId, holdId: response.id });
 
-    res.send({ transaction: response.tx, holdId: response.id });
+    // check if is the 4th hold
+    if (currentHolds.length == 4) {
+      // execute the bets
+      let winner = utils.makeTheBets(currentHolds, registeredUsers);
+
+      // empty the current currentHolds
+      currentHolds = [];
+      res.send({ wiiner: winner });
+    } else {
+      res.send({ transaction: response.tx, holdId: response.id });
+    }
   }
 });
 

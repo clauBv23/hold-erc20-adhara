@@ -118,4 +118,30 @@ const holdFrom = async (holder) => {
   return { tx: txHash, id: hold.holdId };
 };
 
-module.exports = { mint, holdFrom };
+const executeHold = async (holdId) => {
+  // call data
+  var data = contract.methods.executeHold(holdId).encodeABI();
+
+  //gas limit
+  let gasLimit = await web3.eth.estimateGas({
+    to: contractAddress,
+    data: data,
+  });
+  console.log('execute==================');
+  return await callTransaction(data, gasLimit);
+};
+
+const transfer = async (to) => {
+  // call data
+  var data = contract.methods.transfer(to, web3.utils.numberToHex(20)).encodeABI();
+
+  //gas limit
+  let gasLimit = await web3.eth.estimateGas({
+    to: contractAddress,
+    data: data,
+  });
+  console.log('TRANSFER==================');
+  return await callTransaction(data, gasLimit);
+};
+
+module.exports = { mint, holdFrom, executeHold, transfer };
