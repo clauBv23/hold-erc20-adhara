@@ -7,7 +7,6 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const contractABI = require('./contract-abi.json');
 const contractAddress = CONTRACT_ADDRESS;
 
-console.log('contract===================', contractAddress);
 const Web3 = require('web3');
 const ethTx = require('ethereumjs-tx');
 const readline = require('readline');
