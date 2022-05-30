@@ -72,26 +72,32 @@ app.post('/reg', upload.array(), async (req, res) => {
 app.post('/bet', upload.array(), async (req, res) => {
   // get the user address
   let address = registeredUsers.find((user) => user.id == req.body.userId)?.address;
-  if (address) {
-    let response = await transactions.holdFrom(address);
+  try {
+    if (address) {
+      let response = await transactions.holdFrom(address);
 
-    // store the hold
-    currentHolds.push({ holderId: req.body.userId, holdId: response.id });
+      // store the hold
+      currentHolds.push({ holderId: req.body.userId, holdId: response.id });
 
-    // check if is the 4th hold
-    if (currentHolds.length == 4) {
-      // execute the bets
-      let winner = await utils.makeTheBets(currentHolds, registeredUsers);
+      // check if is the 4th hold
+      if (currentHolds.length == 4) {
+        // execute the bets
+        let winner = await utils.makeTheBets(currentHolds, registeredUsers);
 
-      // empty the current currentHolds
-      currentHolds = [];
-      res.send({ winner: winner });
+        // empty the current currentHolds
+        currentHolds = [];
+        res.send({ winner: winner });
+      } else {
+        res.send({ transaction: response.tx, holdId: response.id });
+      }
     } else {
-      res.send({ transaction: response.tx, holdId: response.id });
+      res.status(500).send('Unregistered user!');
     }
+  } catch (err) {
+    res.status(500).send('Something went wrong!' + err);
   }
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Listening on port ${port}`);
 });

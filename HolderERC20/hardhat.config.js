@@ -1,22 +1,14 @@
 require('@nomiclabs/hardhat-truffle5');
 require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-ethers');
-require('@nomiclabs/hardhat-waffle');
 require('@nomiclabs/hardhat-web3');
 require('hardhat-contract-sizer');
 require('hardhat-gas-reporter');
 require('solidity-coverage');
 require('hardhat-deploy');
-
 require('dotenv').config();
 
-const MNEMONIC = process.env.MNEMONIC;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL;
-const INFURA_API_KEY = process.env.INFURA_API_KEY;
-const TENDERLY_PROJECT = process.env.TENDERLY_PROJECT;
-const TENDERLY_USERNAME = process.env.TENDERLY_USERNAME;
-const INFURA_POLYGON_RPC_URL = process.env.INFURA_POLYGON_RPC_URL;
 const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL;
 
 module.exports = {

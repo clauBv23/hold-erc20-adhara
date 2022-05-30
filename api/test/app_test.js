@@ -10,9 +10,9 @@ let newUsersIds = [0, 0, 0];
 let userBetIds = [0, 0, 0];
 
 let usersAdress = [
-  '0x37D284F6E4EF4F174cE326d0F9450133c89Cf071',
-  '0x65210F41E2450c1374cF3f668ed5B3d2Cfd07216',
-  '0xeCA850e66C2557B9651F6979fA01b0C6a4a7933c',
+  '0xbbA19c800482b3059F4bf3B7Fd072751c608E8e0',
+  '0xBa575BcA6417F134BB02F16D7350268e768ad690',
+  '0x07DB9F58D25e03FE2749187bc2d34B48C38558bF',
 ];
 
 let winner;
@@ -190,7 +190,8 @@ describe('the bet-winning process', () => {
         .get('/balance?id=' + newUsersIds[winner])
         .end(function (err, res) {
           // check the hold is created
-          assert.equal(res.body.balance, 115);
+          console.log('winner', winner);
+          winner == 0 ? assert.equal(res.body.balance, 110) : assert.equal(res.body.balance, 115);
           expect(res).to.have.status(200);
           done();
         });
