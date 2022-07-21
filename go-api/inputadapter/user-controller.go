@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 )
 
 type userStruct struct {
@@ -74,14 +73,17 @@ func (uCtrl *userCtrl) GetUserBalance(res http.ResponseWriter, req *http.Request
 
 	res.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(req)
-	userId, err := strconv.ParseInt(vars["id"], 10, 64)
-	if err != nil {
-		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(ServiceError{Message: "Error getting user Id."})
-		return
-	}
+	// todo change the param to id instead of addr
+	//userId, err := strconv.ParseInt(vars["id"], 10, 64)
+	//if err != nil {
+	//	res.WriteHeader(http.StatusInternalServerError)
+	//	json.NewEncoder(res).Encode(ServiceError{Message: "Error getting user Id."})
+	//	return
+	//}
 
-	balance, err := uCtrl.serv.FindUserBalance(userId)
+	addr := vars["addr"]
+
+	balance, err := uCtrl.serv.FindUserBalance(addr)
 	if err != nil {
 		res.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(res).Encode(ServiceError{Message: "Error getting balance."})

@@ -11,9 +11,10 @@ import (
 )
 
 var (
-	userRepo       = outputadapter.NewUserFirestoreRepo()
-	userServ       = user.NewUserService(userRepo)
-	userController = inputadapter.NewUserController(userServ)
+	userErc20Adapter = outputadapter.NewERC20Adapter("HTTP://127.0.0.1:7545", "0x60aBBa473620FF9361A30C047e5E885038d6AA01")
+	userRepo         = outputadapter.NewUserFirestoreRepo()
+	userServ         = user.NewUserService(userRepo, userErc20Adapter)
+	userController   = inputadapter.NewUserController(userServ)
 
 	holdRepo       = outputadapter.NewHoldFirestoreRepo()
 	holdServ       = hold.NewHoldService(holdRepo, userServ)
@@ -33,7 +34,7 @@ func main() {
 	httpRouter.POST("/bet", holdController.AddHold)
 
 	httpRouter.GET("/users", userController.GetUsers)
-	httpRouter.GET("/balance/{id}", userController.GetUserBalance)
+	httpRouter.GET("/balance/{addr}", userController.GetUserBalance)
 	httpRouter.POST("/reg", userController.AddUser)
 
 	httpRouter.SERVE(port)

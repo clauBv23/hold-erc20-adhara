@@ -26,7 +26,7 @@ func (*holdRepo) SaveHold(hold *hold.Hold) (*hold.Hold, error) {
 	client, err := firestore.NewClient(ctx, projectId)
 
 	if err != nil {
-		log.Fatalf("Failed to create a Firestore Client: %v", err)
+		//log.Fatalf("Failed to create a Firestore Client: %v", err)
 		return nil, err
 	}
 
@@ -39,7 +39,7 @@ func (*holdRepo) SaveHold(hold *hold.Hold) (*hold.Hold, error) {
 	})
 
 	if err != nil {
-		log.Fatalf("Failed adding a new post: %v", err)
+		//log.Fatalf("Failed adding a new post: %v", err)
 		return nil, err
 	}
 	return hold, nil

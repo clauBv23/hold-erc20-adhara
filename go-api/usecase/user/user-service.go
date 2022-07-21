@@ -2,8 +2,6 @@ package user
 
 import (
 	"errors"
-	"fmt"
-	"log"
 	"math/rand"
 )
 
@@ -15,24 +13,23 @@ type User struct {
 type UserService interface {
 	CreateUser(hold *User) (*User, error)
 	FindAllUsers() ([]User, error)
-	FindUserBalance(userId int64) (int, error)
+	FindUserBalance(address string) (*int, error)
 	FindUserByAddress(address string) (*User, error)
 }
 
 type service struct {
-	repo UserRepository
+	repo    UserRepository
+	adapter UserERC20Adapter
 }
 
-func NewUserService(repo UserRepository) UserService {
-	return &service{repo: repo}
+func NewUserService(repo UserRepository, adapter UserERC20Adapter) UserService {
+	return &service{repo: repo, adapter: adapter}
 }
 
 func (s *service) CreateUser(hold *User) (*User, error) {
-	//todo register the user on the smart contract
 
 	user, err := s.FindUserByAddress(hold.Address)
 	if err != nil {
-		log.Fatalf("Failed to get the user: %v", err)
 		return nil, err
 	}
 	if user.Id != 0 {
@@ -41,6 +38,13 @@ func (s *service) CreateUser(hold *User) (*User, error) {
 	}
 
 	hold.Id = rand.Int63()
+
+	// mint tokens to the registered account
+	err = s.adapter.MintTokensToUser(hold.Address, 500)
+	if err != nil {
+		return nil, err
+	}
+
 	return s.repo.SaveUser(hold)
 }
 
@@ -52,9 +56,9 @@ func (s *service) FindUserByAddress(address string) (*User, error) {
 	return s.repo.FindUserByAddress(address)
 }
 
-func (s *service) FindUserBalance(userId int64) (int, error) {
-	// todo get the user balance from the smart contract
+func (s *service) FindUserBalance(address string) (*int, error) {
 	// todo avoid calling the smart contract if the user is not registered
-	fmt.Println(userId)
-	return 0, nil
+	// todo change the request to make them with id
+
+	return s.adapter.GetUserBalance(address)
 }
