@@ -4,13 +4,13 @@ import (
 	"cleanGo/api/usecase/user"
 	"errors"
 	"log"
-	"math/rand"
 )
 
 type Hold struct {
 	Id     int64
 	Amount int64
 	User   string
+	Status string
 }
 
 type HoldService interface {
@@ -21,12 +21,13 @@ type HoldService interface {
 }
 
 type service struct {
+	adapter     HoldERC20Adapter
 	repo        HoldRepository
 	userService user.UserService
 }
 
-func NewHoldService(repo HoldRepository, userService user.UserService) HoldService {
-	return &service{repo: repo, userService: userService}
+func NewHoldService(repo HoldRepository, userService user.UserService, adapter HoldERC20Adapter) HoldService {
+	return &service{repo: repo, userService: userService, adapter: adapter}
 }
 
 func (s *service) ValidateHold(hold *Hold) error {
@@ -55,19 +56,40 @@ func (s *service) ValidateHold(hold *Hold) error {
 }
 
 func (s *service) CreateHold(hold *Hold) (*Hold, error) {
-	//todo create the hold on the smart contract
 	//todo add the flow when there are more than 5 registered holds to select a random winner
 	//			todo a status field on the hold may be needed
 	err := s.ValidateHold(hold)
 	if err != nil {
 		return nil, err
 	}
-	hold.Id = rand.Int63()
-	return s.repo.SaveHold(hold)
+
+	// create the hold on the smart contract
+	id, err := s.adapter.CreateHold(hold.User, hold.Amount)
+	if err != nil {
+		return nil, err
+	}
+	hold.Id = int64(id)
+	hold.Status = "CREATED"
+
+	newHold, err := s.repo.SaveHold(hold)
+	// todo  check if there are 5 created and execute them
+
+	return s.checkIfHaveExecHolds(newHold)
+}
+
+func (s *service) checkIfHaveExecHolds(newHold *Hold) (*Hold, error) {
+	//	get the holds on create
+	// if there are 5 execute the holds
+	
+	return newHold, nil
 }
 
 func (s *service) FindAllHolds() ([]Hold, error) {
 	return s.repo.FindAllHolds()
+}
+
+func (s *service) FindAllHoldsOnCreated() ([]Hold, error) {
+	return s.repo.FindAllHoldsOnCreated()
 }
 
 func (s *service) FindHoldsFromUser(user string) ([]Hold, error) {

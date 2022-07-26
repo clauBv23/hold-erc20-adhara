@@ -10,15 +10,20 @@ import (
 	"net/http"
 )
 
+const cAddr = "0x7bEd003f8F0f3F78F4c999DC852CB413472295BF"
+const netUrl = "HTTP://127.0.0.1:7545"
+const wsUrl = "ws://127.0.0.1:7545"
+
 var (
-	userErc20Adapter = outputadapter.NewERC20Adapter("HTTP://127.0.0.1:7545", "0x60aBBa473620FF9361A30C047e5E885038d6AA01")
+	userErc20Adapter = outputadapter.NewUserERC20Adapter(netUrl, cAddr)
 	userRepo         = outputadapter.NewUserFirestoreRepo()
 	userServ         = user.NewUserService(userRepo, userErc20Adapter)
 	userController   = inputadapter.NewUserController(userServ)
 
-	holdRepo       = outputadapter.NewHoldFirestoreRepo()
-	holdServ       = hold.NewHoldService(holdRepo, userServ)
-	holdController = inputadapter.NewHoldController(holdServ)
+	holdErc20Adapter = outputadapter.NewHoldERC20Adapter(netUrl, wsUrl, cAddr)
+	holdRepo         = outputadapter.NewHoldFirestoreRepo()
+	holdServ         = hold.NewHoldService(holdRepo, userServ, holdErc20Adapter)
+	holdController   = inputadapter.NewHoldController(holdServ)
 
 	httpRouter = http_layer.NewMuxRouter()
 )

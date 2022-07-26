@@ -15,9 +15,14 @@ import (
 type adapter struct {
 	instance outputinfra.Main
 	client   ethclient.Client
+	wsClient ethclient.Client
+	cAddr    common.Address
 }
 
-func NewERC20Adapter(networkURL string, contractAddr string) adapter {
+const myPk = "431fb01d4f91d7afb25d2214e08e19edfda753e613018975ea8c017dc26a13a9"
+const myAddr = "0x01D1dBd8D5796881A59a3822F6def9e5FF77B9e4"
+
+func NewUserERC20Adapter(networkURL string, contractAddr string) adapter {
 
 	client, err := ethclient.Dial(networkURL)
 	if err != nil {
@@ -47,7 +52,7 @@ func (a adapter) GetUserBalance(address string) (*int, error) {
 func (a adapter) MintTokensToUser(userAddr string, amount int64) error {
 	// mint tokens to the registered user
 
-	privateKey, err := crypto.HexToECDSA("431fb01d4f91d7afb25d2214e08e19edfda753e613018975ea8c017dc26a13a9")
+	privateKey, err := crypto.HexToECDSA(myPk)
 	if err != nil {
 		return err
 	}

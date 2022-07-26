@@ -11,6 +11,7 @@ type holdStuct struct {
 	Id     int64  `json:"id"`
 	Amount int64  `json:"amount"`
 	User   string `json:"user"`
+	Status string `json:"status"`
 }
 
 type HoldController interface {
@@ -65,6 +66,7 @@ func (hCtrl *holdCtrl) AddHold(res http.ResponseWriter, req *http.Request) {
 	outHold.Id = newUsecaseHold.Id
 	outHold.Amount = newUsecaseHold.Amount
 	outHold.User = newUsecaseHold.User
+	outHold.Status = newUsecaseHold.Status
 
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(outHold)

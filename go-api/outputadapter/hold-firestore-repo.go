@@ -36,6 +36,7 @@ func (*holdRepo) SaveHold(hold *hold.Hold) (*hold.Hold, error) {
 		"Id":     hold.Id,
 		"Amount": hold.Amount,
 		"User":   hold.User,
+		"Status": hold.Status,
 	})
 
 	if err != nil {
@@ -80,13 +81,46 @@ func (*holdRepo) FindAllHolds() ([]hold.Hold, error) {
 	return holds, nil
 }
 
+func (r *holdRepo) FindAllHoldsOnCreated() ([]hold.Hold, error) {
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer client.Close()
+
+	var holds []hold.Hold
+	iter := client.Collection(holdCollectionName).Where("Status", "==", "CREATED").Documents(ctx)
+
+	for {
+		doc, err := iter.Next()
+
+		if err == iterator.Done {
+			break
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		hold := hold.Hold{
+			Id:     doc.Data()["Id"].(int64),
+			Amount: doc.Data()["Amount"].(int64),
+			User:   doc.Data()["User"].(string),
+		}
+		holds = append(holds, hold)
+	}
+	return holds, nil
+}
+
 func (r *holdRepo) FindHoldsFromUser(user string) ([]hold.Hold, error) {
 
 	ctx := context.Background()
 	client, err := firestore.NewClient(ctx, projectId)
 
 	if err != nil {
-		log.Fatalf("Failed to create a Firestore Client: %v", err)
 		return nil, err
 	}
 
@@ -103,7 +137,6 @@ func (r *holdRepo) FindHoldsFromUser(user string) ([]hold.Hold, error) {
 		}
 
 		if err != nil {
-			log.Fatalf("Failed to iterate the hosts list: %v", err)
 			return nil, err
 		}
 
