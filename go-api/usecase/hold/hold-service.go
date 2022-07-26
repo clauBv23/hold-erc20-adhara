@@ -4,10 +4,13 @@ import (
 	"cleanGo/api/usecase/user"
 	"errors"
 	"log"
+	"math/rand"
+	"strconv"
 )
 
 type Hold struct {
 	Id     int64
+	SId    string
 	Amount int64
 	User   string
 	Status string
@@ -69,6 +72,7 @@ func (s *service) CreateHold(hold *Hold) (*Hold, error) {
 		return nil, err
 	}
 	hold.Id = int64(id)
+	hold.SId = strconv.Itoa(int(hold.Id))
 	hold.Status = "CREATED"
 
 	newHold, err := s.repo.SaveHold(hold)
@@ -78,10 +82,47 @@ func (s *service) CreateHold(hold *Hold) (*Hold, error) {
 }
 
 func (s *service) checkIfHaveExecHolds(newHold *Hold) (*Hold, error) {
-	//	get the holds on create
-	// if there are 5 execute the holds
-	
+	holds, err := s.repo.FindAllHoldsOnCreated()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(holds) == 5 {
+		//	execute the holds
+		return s.execHolds(holds)
+	}
 	return newHold, nil
+}
+
+func (s *service) execHolds(holds []Hold) (*Hold, error) {
+	randNumber := rand.Intn(5)
+	winnerHold := holds[randNumber]
+
+	// execute holds
+	for i := 0; i < 5; i++ {
+		holds[i].Status = "EXEC"
+		err := s.adapter.ExecuteHold(holds[i].Id)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// transfer held amount to the winner
+	err := s.adapter.TransferTo(winnerHold.User, 5*winnerHold.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	// set all holds status to EXEC
+	for i := 0; i < 5; i++ {
+		holds[i].Status = "EXEC"
+		_, err = s.repo.UpdateHoldStatus(&holds[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &winnerHold, nil
 }
 
 func (s *service) FindAllHolds() ([]Hold, error) {

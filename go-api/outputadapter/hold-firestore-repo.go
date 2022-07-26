@@ -32,11 +32,38 @@ func (*holdRepo) SaveHold(hold *hold.Hold) (*hold.Hold, error) {
 
 	defer client.Close()
 
-	_, _, err = client.Collection(holdCollectionName).Add(ctx, map[string]interface{}{
+	_, err = client.Collection(holdCollectionName).Doc(hold.SId).Set(ctx, map[string]interface{}{
 		"Id":     hold.Id,
+		"SId":    hold.SId,
 		"Amount": hold.Amount,
 		"User":   hold.User,
 		"Status": hold.Status,
+	})
+
+	if err != nil {
+		//log.Fatalf("Failed adding a new post: %v", err)
+		return nil, err
+	}
+
+	return hold, nil
+}
+
+func (*holdRepo) UpdateHoldStatus(hold *hold.Hold) (*hold.Hold, error) {
+	ctx := context.Background()
+	client, err := firestore.NewClient(ctx, projectId)
+
+	if err != nil {
+		//log.Fatalf("Failed to create a Firestore Client: %v", err)
+		return nil, err
+	}
+
+	defer client.Close()
+
+	_, err = client.Collection(holdCollectionName).Doc(hold.SId).Update(ctx, []firestore.Update{
+		{
+			Path:  "Status",
+			Value: "EXEC",
+		},
 	})
 
 	if err != nil {
@@ -107,8 +134,10 @@ func (r *holdRepo) FindAllHoldsOnCreated() ([]hold.Hold, error) {
 
 		hold := hold.Hold{
 			Id:     doc.Data()["Id"].(int64),
+			SId:    doc.Data()["SId"].(string),
 			Amount: doc.Data()["Amount"].(int64),
 			User:   doc.Data()["User"].(string),
+			Status: doc.Data()["Status"].(string),
 		}
 		holds = append(holds, hold)
 	}
