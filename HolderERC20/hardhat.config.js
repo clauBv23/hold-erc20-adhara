@@ -7,6 +7,8 @@ require('hardhat-gas-reporter');
 require('solidity-coverage');
 require('hardhat-deploy');
 require('dotenv').config();
+require('hardhat-abi-exporter');
+
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL;
@@ -21,11 +23,11 @@ module.exports = {
       url: 'http://127.0.0.1:7545',
       tags: ['local'],
     },
-    rinkeby: {
-      url: RINKEBY_RPC_URL,
-      accounts: [PRIVATE_KEY],
-      tags: ['testnet'],
-    },
+    // rinkeby: {
+    //   url: RINKEBY_RPC_URL,
+    //   accounts: [PRIVATE_KEY],
+    //   tags: ['testnet'],
+    // },
   },
   upgradeable: {
     uups: ['HolderERC20'],

@@ -23,7 +23,7 @@ contract HolderERC20 is UUPSUpgradeable, ERC20Upgradeable, OwnableUpgradeable {
      * @param holder The holder's address
      * @param operator The creator of the hold
      */
-    event HoldCreated(uint256 indexed holdId, uint256 holdAmount, address holder, address operator);
+    event HoldCreated(uint256 holdId, uint256 holdAmount, address holder, address operator);
 
     /**
      * @dev Emmited when a new hold is executed

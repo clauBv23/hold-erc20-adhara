@@ -112,7 +112,6 @@ func (a adapter) processTransaction(receipt *types.Receipt) int64 {
 	hold, err := contractAbi.Unpack("HoldCreated", logs[0].Data)
 	if err != nil {
 		return 0
-
 	}
 
 	id := hold[0]
